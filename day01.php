@@ -13,13 +13,13 @@ class Safe {
 
     if($direction == "L") {
       $this->position -= $ticks;
-      if($this->position < 0) {
+      while($this->position < 0) {
         $this->position += 100;
       }
     }
     elseif($direction == "R") {
       $this->position += $ticks;
-      if($this->position > 99) {
+      while($this->position > 99) {
         $this->position -= 100;
       }
     }
@@ -35,6 +35,7 @@ $count = 0;
 
 $data = file_get_contents("./data/day01.txt");
 $lines = explode("\n", $data);
+$i = 0;
 foreach($lines as $line) {
   if($line == null) {
     break;
