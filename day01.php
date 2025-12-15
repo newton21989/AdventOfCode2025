@@ -2,30 +2,37 @@
 
 class Safe {
   private $position;
-  private $timesPastZero;
+  private $timesAtZero;
 
   function __construct($startPos) {
     $this->position = $startPos;
-    $this->timesPastZero = 0;
+    $this->timesAtZero = 0;
   }
 
   function turnDial($line) {
-    $this->timesPastZero = 0;
     $direction = substr($line,0,1);
     $ticks = intval(substr($line,1));
 
     if($direction == "L") {
-      $this->position -= $ticks;
-      while($this->position < 0) {
-        $this->position += 100;
-        $this->timesPastZero++;
+      for($i = 0; $i < $ticks; $i++) {
+        $this->position--;
+        if($this->position < 0) {
+          $this->position += 100;
+        }
+        if($this->position == 0) {
+          $this->timesAtZero++;
+        }
       }
     }
     elseif($direction == "R") {
-      $this->position += $ticks;
-      while($this->position > 99) {
-        $this->position -= 100;
-        $this->timesPastZero++;
+      for($i = 0; $i < $ticks; $i++) {
+        $this->position++;
+        if($this->position >= 100) {
+          $this->position -= 100;
+        }
+        if($this->position == 0) {
+          $this->timesAtZero++;
+        }
       }
     }
     else {
@@ -35,7 +42,7 @@ class Safe {
   }
 
   function getTimesPastZero() {
-    return $this->timesPastZero;
+    return $this->timesAtZero;
   }
 }
 
@@ -50,7 +57,7 @@ foreach($lines as $line) {
     break;
   }
   $result = $safe->turnDial($line);
-  $count += $safe->getTimesPastZero();
+  $count = $safe->getTimesPastZero();
 }
 
 echo("Day 1 Part 2: $count\n");
