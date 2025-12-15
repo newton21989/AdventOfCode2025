@@ -22,14 +22,14 @@ foreach($batteries as $batt) {
   $max1i = array_search($max1, $cells);
 
   if($max1i < count($cells) - 1) {
-    $cells2 = array_chunk($cells, $max1i + 1);
-    $max2 = array_max($cells2[1]);
+    $cells2 = array_slice($cells, $max1i + 1);
+    $max2 = array_max($cells2);
 
     $out = $max1 . $max2;
   }
   elseif($max1i == count($cells) - 1) {
-    $cells2 = array_chunk($cells, $max1i);
-    $max2 = array_max($cells2[0]);
+    $cells2 = array_slice($cells, 0, $max1i);
+    $max2 = array_max($cells2);
 
     $out = $max2 . $max1;
   }
