@@ -71,4 +71,27 @@ for($i = 0; $i < count($data); $i++) {
   }
 }
 
+
+$movedRolls = 0;
+
+while(true) {
+  $continue = false;
+  for($i = 0; $i < count($data); $i++) {
+    for($j = 0; $j < count($data[$i]); $j++) {
+      if($data[$i][$j] == PAPER) {
+        $count = countAdjacent($data, $i, $j);
+        if($count < 4) {
+          $data[$i][$j] = "x";
+          $continue = true;
+          $movedRolls++;
+        }
+      }
+    }
+  }
+  if(!$continue) {
+    break;
+  }
+}
+
 echo("Day 4 part 1: $out1\n");
+echo("Day 4 part 2: $movedRolls\n");
