@@ -27,3 +27,15 @@ foreach($ingredients as $ingredient) {
 }
 
 echo("Day 5 part 1: $numfresh\n");
+
+$db2 = [];
+foreach($db as $range) {
+  for($i = $range[0]; $i <= $range[1]; $i++) {
+    if(array_search($i, $db2) === false) {
+      array_push($db2, $i);
+    }
+  }
+}
+
+$out2 = count($db2);
+echo("Day 5 part 2: $out2\n");
