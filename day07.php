@@ -41,20 +41,30 @@ function grid2str($grid) {
 $data = str2grid($file);
 
 $s = array_search("S", $data[0]);
-$tachyons = [[1, $s]];
+$tachyons[1 . "," . $s] = 1;
 $ends = 0;
-while([$r, $c] = array_shift($tachyons)) {
-  if($r + 1 < count($data)) {
-    if($data[$r+1][$c] == ".") {
-      array_push($tachyons, [$r+1, $c]);
-    }
-    elseif($data[$r+1][$c] == "^") {
-      array_push($tachyons, [$r+1, $c-1]);
-      array_push($tachyons, [$r+1, $c+1]);
+while(true) {
+  $nextTachyons = [];
+
+  foreach($tachyons as $k=>$t) {
+    [$r, $c] = explode(",", $k);
+    if($r < count($data) - 2) {
+      if($data[$r+1][$c] == ".") {
+        $nextTachyons[$r+1 . "," . $c] += $t;
+      }
+      elseif($data[$r+1][$c] == "^") {
+        $nextTachyons[$r+1 . "," . $c-1] += $t;
+        $nextTachyons[$r+1 . "," . $c+1] += $t;
+      }
     }
   }
+
+  if(count($nextTachyons)) {
+    $tachyons = $nextTachyons;
+  }
   else {
-    $ends++;
+    $ends = array_sum($tachyons);
+    break;
   }
 }
 
