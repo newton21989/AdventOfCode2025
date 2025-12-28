@@ -104,10 +104,11 @@ $nodeCkts = [];
 $parentCkts = [];
 $rank = [];
 $i = 0;
+$lastA = $lastB = null;
 foreach($distances as $k=>$v) {
-  if($i >= 1000) {
-    break;
-  }
+  // if($i >= 1000) {
+  //   break;
+  // }
   
   [$a, $b] = explode(",", $k);
 
@@ -137,23 +138,37 @@ foreach($distances as $k=>$v) {
   }
 
   $i++;
-}
 
-$cktSize = [];
-foreach($nodeCkts as $n) {
-  $root = findCktRoot($n, $parentCkts);
-  $cktSize[$root] = ($cktSize[$root] ?? 0) + 1;
-}
-rsort($cktSize);
-
-$out1 = 0;
-for($i = 0; $i < 3; $i++) {
-  if($i == 0) {
-    $out1 = $cktSize[$i];
-    continue;
+  $cktSize = [];
+  foreach($nodeCkts as $n) {
+    $root = findCktRoot($n, $parentCkts);
+    $cktSize[$root] = ($cktSize[$root] ?? 0) + 1;
+    if($cktSize[$root] == 20) {
+      $lastA = $nodes[$a];
+      $lastB = $nodes[$b];
+    }
   }
-  $out1 *= $cktSize[$i];
 }
 
-echo("Day 8 part 1: $out1\n");
+$out2 = $lastA->x * $lastB->x;
+
+// $cktSize = [];
+// foreach($nodeCkts as $n) {
+//   $root = findCktRoot($n, $parentCkts);
+//   $cktSize[$root] = ($cktSize[$root] ?? 0) + 1;
+// }
+// rsort($cktSize);
+
+// $out1 = 0;
+// for($i = 0; $i < 3; $i++) {
+//   if($i == 0) {
+//     $out1 = $cktSize[$i];
+//     continue;
+//   }
+//   $out1 *= $cktSize[$i];
+// }
+
+// echo("Day 8 part 1: $out1\n");
+
+echo("Day 8 part 2: $out2\n");
 
