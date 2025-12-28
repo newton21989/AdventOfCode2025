@@ -30,25 +30,49 @@ class vec3 {
 }
 
 function findCktRoot($node, &$parent) {
-  if(!isset($parent[$node])){
+  if(!isset($parent[$node])) {
     $parent[$node] = $node;
-    return $node;
   }
 
-  if($parent[$node] === $node) {
-    return $node;
+  $root = $node;
+
+  while($parent[$root] !== $root) {
+    $root = $parent[$root];
   }
 
-  $parent[$node] = findCktRoot($parent[$node], $parent);
-  return $parent[$node];
+  // $cur = $node;
+  // while($cur !== $root) {
+  //   $next = $parent[$cur];
+  //   $parent[$cur] = $root;
+  //   $cur = $next;
+  // }
+
+  return $root;
 }
 
-function joinCkts($a, $b, &$parent) {
-  $rootA = findCktRoot($a, $parentCkts);
-  $rootB = findCktRoot($b, $parentCkts);
+function joinCkts($a, $b, &$parent, &$rank) {
+  $rootA = findCktRoot($a, $parent);
+  $rootB = findCktRoot($b, $parent);
 
-  if($rootA != $rootB) {
+  if($rootA === $rootB) {
+    return;
+  }
+
+  if(!isset($rank[$rootA])) {
+    $rank[$rootA] = 0;
+  }
+  if(!isset($rank[$rootB])) {
+    $rank[$rootB] = 0;
+  }
+
+  if($rank[$rootA] < $rank[$rootB]) {
+    $parent[$rootA] = $rootB;
+  }
+  else {
     $parent[$rootB] = $rootA;
+    if($rank[$rootA] === $rank[$rootB]) {
+      $rank[$rootA] = ($rank[$rootA] ?? 0) + 1;
+    }
   }
 }
 
@@ -78,6 +102,7 @@ array_multisort($distances);
 
 $nodeCkts = [];
 $parentCkts = [];
+$rank = [];
 $i = 0;
 foreach($distances as $k=>$v) {
   if($i >= 1000) {
@@ -95,7 +120,7 @@ foreach($distances as $k=>$v) {
 
   if(isset($nodeCkts[$a]) && isset($nodeCkts[$b])) {
     if($nodeCkts[$a] != $nodeCkts[$b]) {
-      joinCkts($nodeCkts[$a], $nodeCkts[$b], $parentCkts);
+      joinCkts($nodeCkts[$a], $nodeCkts[$b], $parentCkts, $rank);
     }
     $i++;
     continue;
