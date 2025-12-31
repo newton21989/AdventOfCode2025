@@ -2,7 +2,7 @@
 
 @ini_set('memory_limit', "8G");
 
-$file = file_get_contents('./data/day10.txt');
+$file = file_get_contents('./test_data/day10.txt');
 $machines = explode("\n", $file);
 
 function btnCombos($buttons, $length, $start = 0, $chosen = []): Generator {
@@ -69,13 +69,15 @@ foreach($machines as $m) {
 
 echo("Day 10 part 1: $out1\n");
 
-function btnJoltage(&$target, &$buttons, $test = [], $depth = 0) {
+$visited = [];
+function btnJoltage(&$target, &$buttons, $test = [], $start = 0, $depth = 0) {
+  global $visited;
   if(!count($test)) {
     $test = array_fill(0, count($target), 0);
   }
   else {
     $isValid = true;
-    foreach($buttons[$depth] as $b) {
+    foreach($buttons[$start] as $b) {
       $test[$b] += 1;
       if($test[$b] > $target[$b]) {
         $isValid = false;
@@ -83,19 +85,29 @@ function btnJoltage(&$target, &$buttons, $test = [], $depth = 0) {
     }
 
     if(!$isValid) {
-      foreach($buttons[$depth] as $b) {
+      foreach($buttons[$start] as $b) {
         $test[$b] -= 1;
       }
-      $depth += 1;
+      $start += 1;
+    }
+    else {
+      $key = baseMaxPlusOne($test, $target);
+      if(isset($visited[$key])) {
+        $visited[$key] = min($visited[$key], $depth);
+        return null;
+      }
+      else {
+        $visited[$key] = $depth;
+      }
     }
 
     if($test == $target) {
-      return [$buttons[$depth]];
+      return [$buttons[$start]];
     }
   }
 
-  for($i = $depth; $i < count($buttons); $i++) {
-    $result = btnJoltage($target, $buttons, $test, $i);
+  for($i = $start; $i < count($buttons); $i++) {
+    $result = btnJoltage($target, $buttons, $test, $i, $depth + 1);
     if($result !== null) {
       $result[] = $buttons[$i];
       return $result;
