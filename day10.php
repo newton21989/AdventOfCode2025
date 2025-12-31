@@ -1,6 +1,8 @@
 <?php
 
-$file = file_get_contents('./test_data/day10.txt');
+@ini_set('memory_limit', "8G");
+
+$file = file_get_contents('./data/day10.txt');
 $machines = explode("\n", $file);
 
 function btnCombos($buttons, $length, $start = 0, $chosen = []): Generator {
@@ -29,6 +31,16 @@ function btnPress($numIndicators, $combo) {
     }
   }
   return $testIndicators;
+}
+
+function baseMaxPlusOne($num, &$target) {
+  $out = 0;
+  $mul = 1;
+  foreach($num as $k=>$v) {
+    $out += $v * $mul;
+    $mul *= $target[$k] + 1;
+  }
+  return $out;
 }
 
 $out1 = 0;
@@ -70,7 +82,7 @@ foreach($machines as $m) {
     $buttons
   );
 
-  $queue = [];
+  $queue = new SplQueue();
   $visited = [];
   $test = array_fill(0, count($target), 0);
   foreach($buttons as $b) {
@@ -78,26 +90,34 @@ foreach($machines as $m) {
     foreach($b as $c) {
       $cur[$c] += 1;
     }
-    $queue[] = ['state'=>$cur, 'level'=>1];
-    $visited[implode(",", $cur)] = true;
+    $key = baseMaxPlusOne($cur, $target);
+    $visited[$key] = true;
+    $queue->enqueue(['state'=>$cur, 'level'=>1]);
   }
 
-  while($start = array_shift($queue)) {
+  while(!$queue->isEmpty()) {
+    $start = $queue->dequeue();
     foreach($buttons as $b) {
+      $isValid = true;
       $cur = $start['state'];
       $level = $start['level'] + 1;
       foreach($b as $c) {
         $cur[$c] += 1;
+        if($cur[$c] > $target[$c]) {
+          $isValid = false;
+        }
       }
 
-      if(!isset($visited[implode(",", $cur)])) {
+      $key = baseMaxPlusOne($cur, $target);
+      if(!isset($visited[$key]) && $isValid) {
         if($cur == $target) {
+          die($level);
           $out2 += $level;
           break 2;
         }
 
-        $queue[] = ['state'=>$cur, 'level'=>$level];
-        $visited[implode(",", $cur)] = true;
+        $queue->enqueue(['state'=>$cur, 'level'=>$level]);
+        $visited[$key] = true;
       }
     }
   }
