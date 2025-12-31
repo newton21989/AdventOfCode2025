@@ -69,6 +69,40 @@ foreach($machines as $m) {
 
 echo("Day 10 part 1: $out1\n");
 
+function btnJoltage(&$target, &$buttons, $test = [], $depth = 0) {
+  if(!count($test)) {
+    $test = array_fill(0, count($target), 0);
+  }
+  else {
+    $isValid = true;
+    foreach($buttons[$depth] as $b) {
+      $test[$b] += 1;
+      if($test[$b] > $target[$b]) {
+        $isValid = false;
+      }
+    }
+
+    if(!$isValid) {
+      foreach($buttons[$depth] as $b) {
+        $test[$b] -= 1;
+      }
+      $depth += 1;
+    }
+
+    if($test == $target) {
+      return [$buttons[$depth]];
+    }
+  }
+
+  for($i = $depth; $i < count($buttons); $i++) {
+    $result = btnJoltage($target, $buttons, $test, $i);
+    if($result !== null) {
+      $result[] = $buttons[$i];
+      return $result;
+    }
+  }
+}
+
 $out2 = 0;
 foreach($machines as $m) {
   $a = $b = [];
@@ -82,45 +116,7 @@ foreach($machines as $m) {
     $buttons
   );
 
-  $queue = new SplQueue();
-  $visited = [];
-  $test = array_fill(0, count($target), 0);
-  foreach($buttons as $b) {
-    $cur = $test;
-    foreach($b as $c) {
-      $cur[$c] += 1;
-    }
-    $key = baseMaxPlusOne($cur, $target);
-    $visited[$key] = true;
-    $queue->enqueue(['state'=>$cur, 'level'=>1]);
-  }
-
-  while(!$queue->isEmpty()) {
-    $start = $queue->dequeue();
-    foreach($buttons as $b) {
-      $isValid = true;
-      $cur = $start['state'];
-      $level = $start['level'] + 1;
-      foreach($b as $c) {
-        $cur[$c] += 1;
-        if($cur[$c] > $target[$c]) {
-          $isValid = false;
-        }
-      }
-
-      $key = baseMaxPlusOne($cur, $target);
-      if(!isset($visited[$key]) && $isValid) {
-        if($cur == $target) {
-          die($level);
-          $out2 += $level;
-          break 2;
-        }
-
-        $queue->enqueue(['state'=>$cur, 'level'=>$level]);
-        $visited[$key] = true;
-      }
-    }
-  }
+  $out2 += count(btnJoltage($target, $buttons));
 }
 
 echo("Day 10 part 2: $out2\n");
